@@ -142,7 +142,6 @@ def read_from_mount_and_fallback_to_env_var(
     guidance_parts: list[str] = []
     guidance_parts.append("Secrets could not be loaded from mount or environment.")
     guidance_parts.append("Options:")
-    guidance_parts.append(f"- If running locally and '{base_volume_mount}' is not available, set CLOUD_SDK_LOCALDEV_{normalized_module.upper()}=true to enable local mode.")
     guidance_parts.append(f"- Provide environment variables like {prefix_upper}_CLIENTID.")
     guidance_parts.append(f"- Alternatively, mount secrets under {mount_dir} with files for each required key.")
     guidance = " ".join(guidance_parts)

@@ -32,6 +32,3 @@ test-results.*
 
 # SonarQube Reports
 .sonar*
-
-# Local Mode
-localauditlog.jsonl
