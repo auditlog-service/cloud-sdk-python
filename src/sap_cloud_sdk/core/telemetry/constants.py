@@ -26,10 +26,10 @@ ATTR_SAP_SDK_LANGUAGE = "sap.telemetry.sdk.language"
 ATTR_SAP_SDK_VERSION = "sap.telemetry.sdk.version"
 
 # Attribute keys - SAP App Foundation specific
-ATTR_CAPABILITY = "sap.cloud_sdk.sdk.capability"
-ATTR_FUNCTIONALITY = "sap.cloud_sdk.sdk.functionality"
-ATTR_SOURCE = "sap.cloud_sdk.sdk.source"
-ATTR_DEPRECATED = "sap.cloud_sdk.sdk.deprecated"
+ATTR_CAPABILITY = "sap.cloud_sdk.capability"
+ATTR_FUNCTIONALITY = "sap.cloud_sdk.functionality"
+ATTR_SOURCE = "sap.cloud_sdk.source"
+ATTR_DEPRECATED = "sap.cloud_sdk.deprecated"
 
 # GenAI-specific attribute keys
 ATTR_GENAI_REQUEST_MODEL = "gen_ai.request.model"

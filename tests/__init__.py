@@ -1,1 +1,1 @@
-# Tests for cloud-sdk-python
+# Tests for sap-cloud-sdk

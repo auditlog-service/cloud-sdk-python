@@ -14,7 +14,7 @@ def get_version() -> str:
         or "unknown" if the package is not installed or metadata is unavailable.
     """
     try:
-        return version("cloud-sdk-python")
+        return version("sap-cloud-sdk")
     except PackageNotFoundError:
         # Package not installed (e.g., during development without installation)
         return "unknown"

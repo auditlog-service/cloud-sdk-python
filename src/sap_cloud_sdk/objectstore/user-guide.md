@@ -8,10 +8,10 @@ Provides a simple and unified way to connect to Object Store services. It abstra
 
 ```bash
 # Using uv (recommended)
-uv add cloud-sdk-python
+uv add sap-cloud-sdk
 
 # Using pip  
-pip install cloud-sdk-python
+pip install sap-cloud-sdk
 ```
 
 See further information about installation in the [main documentation](/docs/README.md#installation).
