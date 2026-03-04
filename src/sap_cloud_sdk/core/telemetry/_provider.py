@@ -7,13 +7,14 @@ from opentelemetry import metrics
 from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from opentelemetry.sdk.resources import Resource
 
 from sap_cloud_sdk.core.telemetry.config import (
     get_config,
     create_resource_attributes_from_env,
 )
 from sap_cloud_sdk.core._version import get_version
+from sap_cloud_sdk.core.telemetry.constants import SDK_PACKAGE_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +36,13 @@ def get_meter() -> metrics.Meter:
 
         if _meter_provider is not None:
             _meter = metrics.get_meter(
-                "sap_cloud_sdk.sdk",
+                SDK_PACKAGE_NAME,
                 version=get_version()
             )
         else:
             # Return a no-op meter if provider setup failed
             _meter = metrics.get_meter_provider().get_meter(
-                "sap_cloud_sdk.sdk"
+                SDK_PACKAGE_NAME
             )
 
     return _meter

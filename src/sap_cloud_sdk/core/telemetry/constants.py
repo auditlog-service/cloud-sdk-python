@@ -39,3 +39,4 @@ ATTR_GENAI_PROVIDER = "gen_ai.provider.name"
 
 # SDK Constants
 SDK_NAME = "SAP Cloud SDK for Python"
+SDK_PACKAGE_NAME = "sap_cloud_sdk"
