@@ -42,7 +42,11 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, Any, Dict, List
 
-from sap_cloud_sdk.destination.utils._params import Params, build_pagination_params, build_filter_param
+from sap_cloud_sdk.destination.utils._params import (
+    Params,
+    build_pagination_params,
+    build_filter_param,
+)
 from sap_cloud_sdk.destination.exceptions import DestinationOperationError
 
 
@@ -55,6 +59,7 @@ class Level(Enum):
         SERVICE_INSTANCE: Operate on destinations bound to the service instance
         SUB_ACCOUNT: Operate on destinations bound to the subaccount
     """
+
     SERVICE_INSTANCE = "SERVICE_INSTANCE"
     SUB_ACCOUNT = "SUB_ACCOUNT"
 
@@ -71,6 +76,7 @@ class AccessStrategy(Enum):
         SUBSCRIBER_FIRST: Try subscriber first, then fallback to provider
         PROVIDER_FIRST: Try provider first, then fallback to subscriber
     """
+
     SUBSCRIBER_ONLY = "SUBSCRIBER_ONLY"
     PROVIDER_ONLY = "PROVIDER_ONLY"
     SUBSCRIBER_FIRST = "SUBSCRIBER_FIRST"
@@ -79,6 +85,7 @@ class AccessStrategy(Enum):
 
 class DestinationType(Enum):
     """Destination type (subset of v1)."""
+
     HTTP = "HTTP"
     RFC = "RFC"
     MAIL = "MAIL"
@@ -88,6 +95,7 @@ class DestinationType(Enum):
 
 class ProxyType(Enum):
     """Proxy type for HTTP destinations."""
+
     INTERNET = "Internet"
     ON_PREMISE = "OnPremise"
     PRIVATE_LINK = "PrivateLink"
@@ -95,6 +103,7 @@ class ProxyType(Enum):
 
 class Authentication(Enum):
     """Authentication method for destinations (subset of v1)."""
+
     NO_AUTHENTICATION = "NoAuthentication"
     BASIC_AUTHENTICATION = "BasicAuthentication"
     CLIENT_CERTIFICATE_AUTHENTICATION = "ClientCertificateAuthentication"
@@ -171,6 +180,7 @@ class Destination:
       - to_dict: Serializes the dataclass back into a payload compatible with the API
         (subset), merging unknown properties without overriding known fields
     """
+
     name: str
     # Core attributes (subset of v1 schema)
     type: DestinationType | str
@@ -184,7 +194,9 @@ class Destination:
     certificates: List["Certificate"] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, obj: Dict[str, Any], include_runtime_data: bool = False) -> "Destination":
+    def from_dict(
+        cls, obj: Dict[str, Any], include_runtime_data: bool = False
+    ) -> "Destination":
         """Parse a raw destination dict into a Destination dataclass.
 
         Accepts both lower and upper camel-case variants for some fields (best-effort).
@@ -201,14 +213,16 @@ class Destination:
             DestinationOperationError: If required fields are missing (name/type).
         """
         # Extract core fields
-        name, type_, url, proxy_type, authentication, description = cls._extract_core_fields(obj)
-        
+        name, type_, url, proxy_type, authentication, description = (
+            cls._extract_core_fields(obj)
+        )
+
         # Validate required fields
         cls._validate_required_fields(name, type_)
-        
+
         # Extract unknown properties
         properties = cls._extract_unknown_properties(obj)
-        
+
         # Parse V2 runtime data if requested
         auth_tokens, certificates = cls._parse_runtime_data(obj, include_runtime_data)
 
@@ -231,7 +245,9 @@ class Destination:
         type_ = _parse_destination_type(obj.get("type") or obj.get("Type"))
         url = obj.get("url") or obj.get("URL")
         proxy_type = _parse_proxy_type(obj.get("proxyType") or obj.get("ProxyType"))
-        authentication = _parse_authentication(obj.get("authentication") or obj.get("Authentication"))
+        authentication = _parse_authentication(
+            obj.get("authentication") or obj.get("Authentication")
+        )
         description = obj.get("description") or obj.get("Description")
         return name, type_, url, proxy_type, authentication, description
 
@@ -239,24 +255,35 @@ class Destination:
     def _validate_required_fields(name: str, type_: Any) -> None:
         """Validate required destination fields."""
         if type_ is None:
-            raise DestinationOperationError("destination is missing required fields (name/type)")
-        
+            raise DestinationOperationError(
+                "destination is missing required fields (name/type)"
+            )
+
         type_str = type_.value if isinstance(type_, DestinationType) else str(type_)
-        
+
         if not name.strip() or not str(type_str).strip():
-            raise DestinationOperationError("destination is missing required fields (name/type)")
+            raise DestinationOperationError(
+                "destination is missing required fields (name/type)"
+            )
 
     @staticmethod
     def _extract_unknown_properties(obj: Dict[str, Any]) -> Dict[str, str]:
         """Extract unknown string-valued properties from dict."""
         known_keys = {
-            "name", "Name",
-            "type", "Type",
-            "url", "URL",
-            "proxyType", "ProxyType",
-            "authentication", "Authentication",
-            "description", "Description",
-            "authTokens", "auth_tokens",
+            "name",
+            "Name",
+            "type",
+            "Type",
+            "url",
+            "URL",
+            "proxyType",
+            "ProxyType",
+            "authentication",
+            "Authentication",
+            "description",
+            "Description",
+            "authTokens",
+            "auth_tokens",
             "certificates",
         }
         properties: Dict[str, str] = {}
@@ -270,14 +297,14 @@ class Destination:
         """Parse V2 runtime data (auth_tokens and certificates) if requested."""
         auth_tokens: List[AuthToken] = []
         certificates: List[Certificate] = []
-        
+
         if include_runtime_data:
             auth_tokens_data = obj.get("authTokens") or obj.get("auth_tokens") or []
             auth_tokens = [AuthToken.from_dict(t) for t in auth_tokens_data]
-            
+
             certs_data = obj.get("certificates") or []
             certificates = [Certificate.from_dict(c) for c in certs_data]
-        
+
         return auth_tokens, certificates
 
     def to_dict(self) -> Dict[str, Any]:
@@ -292,14 +319,24 @@ class Destination:
         """
         payload: Dict[str, Any] = {
             "Name": self.name,
-            "Type": self.type.value if isinstance(self.type, DestinationType) else self.type,
+            "Type": self.type.value
+            if isinstance(self.type, DestinationType)
+            else self.type,
         }
         if self.url is not None:
             payload["URL"] = self.url
         if self.proxy_type is not None:
-            payload["ProxyType"] = self.proxy_type.value if isinstance(self.proxy_type, ProxyType) else self.proxy_type
+            payload["ProxyType"] = (
+                self.proxy_type.value
+                if isinstance(self.proxy_type, ProxyType)
+                else self.proxy_type
+            )
         if self.authentication is not None:
-            payload["Authentication"] = self.authentication.value if isinstance(self.authentication, Authentication) else self.authentication
+            payload["Authentication"] = (
+                self.authentication.value
+                if isinstance(self.authentication, Authentication)
+                else self.authentication
+            )
         if self.description is not None:
             payload["Description"] = self.description
         # Merge any unknown string properties without overriding known fields (case-sensitive)
@@ -324,6 +361,7 @@ class AuthToken:
         refresh_token: Optional base64 encoded refresh token
         scope: Optional token scopes as space-delimited string
     """
+
     type: str
     value: str
     http_header: Dict[str, str]
@@ -350,7 +388,9 @@ class AuthToken:
         scope = obj.get("scope")
 
         if not token_type or not value or not http_header:
-            raise DestinationOperationError("auth token is missing required fields (type/value/http_header)")
+            raise DestinationOperationError(
+                "auth token is missing required fields (type/value/http_header)"
+            )
 
         return cls(
             type=token_type,
@@ -370,27 +410,28 @@ class ConsumptionOptions:
     Fields:
         fragment_name: Optional fragment name for property merging via X-fragment-name header
         tenant: Optional subscriber tenant subdomain for user token exchange
-    
+
     Example:
         ```python
         from sap_cloud_sdk.destination import create_client, ConsumptionOptions
-        
+
         client = create_client()
-        
+
         # Simple consumption
         dest = client.get_destination("my-api")
-        
+
         # With options
         options = ConsumptionOptions(fragment_name="production", tenant="tenant-1")
         dest = client.get_destination("my-api", options=options)
-        
+
         # Or inline
         dest = client.get_destination(
-            "my-api", 
+            "my-api",
             options=ConsumptionOptions(fragment_name="prod")
         )
         ```
     """
+
     fragment_name: Optional[str] = None
     tenant: Optional[str] = None
 
@@ -426,6 +467,7 @@ class ListOptions:
         ```
 
     """
+
     # Filter options
     filter_names: Optional[List[str]] = None
 
@@ -466,14 +508,12 @@ class ListOptions:
         return params
 
 
-
-
 @dataclass
 class Certificate:
     """Certificate entity (subset of v1 schema).
 
     Certificates are used to store keystores and certificates for mTLS and other authentication.
-    
+
     Fields:
         name: Certificate name (required)
         content: Base64 encoded certificate/keystore binary content (required)
@@ -484,6 +524,7 @@ class Certificate:
       - from_dict: Parses a raw dict into Certificate
       - to_dict: Serializes the dataclass back into a payload compatible with the API
     """
+
     name: str
     content: str
     type: Optional[str] = None
@@ -510,7 +551,9 @@ class Certificate:
         type_ = obj.get("Type") or obj.get("type")
 
         if not name.strip() or not content.strip():
-            raise DestinationOperationError("certificate is missing required fields (Name/Content)")
+            raise DestinationOperationError(
+                "certificate is missing required fields (Name/Content)"
+            )
 
         known_keys = {"Name", "name", "Content", "content", "Type", "type"}
         properties: Dict[str, str] = {}
@@ -545,14 +588,12 @@ class Certificate:
         return payload
 
 
-
-
 @dataclass
 class Fragment:
     """Fragment entity for destination fragments (subset of v1 schema).
 
     Fragments are used to override and/or extend destination properties.
-    
+
     Fields:
         name: Fragment name (required)
         properties: String-valued fields representing fragment properties
@@ -561,6 +602,7 @@ class Fragment:
       - from_dict: Parses a raw dict into Fragment
       - to_dict: Serializes the dataclass back into a payload compatible with the API
     """
+
     name: str
     properties: Dict[str, str] = field(default_factory=dict)
 
@@ -583,7 +625,9 @@ class Fragment:
         name = obj.get("FragmentName") or obj.get("fragmentName") or ""
 
         if not name.strip():
-            raise DestinationOperationError("fragment is missing required field (FragmentName)")
+            raise DestinationOperationError(
+                "fragment is missing required field (FragmentName)"
+            )
 
         known_keys = {"FragmentName", "fragmentName"}
         properties: Dict[str, str] = {}
@@ -612,9 +656,10 @@ class Fragment:
                     payload[k] = v
         return payload
 
+
 class TransparentProxyHeader(Enum):
     """Valid headers for Transparent Proxy destinations.
-    
+
     Attributes:
         X_DESTINATION_NAME: Header for specifying the destination name
         AUTHORIZATION: Header for authorization
@@ -638,6 +683,7 @@ class TransparentProxyHeader(Enum):
         X_CHAIN_VAR_SUBJECT_TOKEN_TYPE: Header for chain variable subject token type
         X_CHAIN_VAR_SAML_PROVIDER_DESTINATION_NAME: Header for chain variable SAML provider destination name
     """
+
     X_DESTINATION_NAME = "X-destination-name"
     AUTHORIZATION = "Authorization"
     X_FRAGMENT_NAME = "x-fragment-name"
@@ -658,7 +704,9 @@ class TransparentProxyHeader(Enum):
     X_CHAIN_NAME = "x-chain-name"
     X_CHAIN_VAR_SUBJECT_TOKEN = "x-chain-var-subjectToken"
     X_CHAIN_VAR_SUBJECT_TOKEN_TYPE = "x-chain-var-subjectTokenType"
-    X_CHAIN_VAR_SAML_PROVIDER_DESTINATION_NAME = "x-chain-var-samlProviderDestinationName"
+    X_CHAIN_VAR_SAML_PROVIDER_DESTINATION_NAME = (
+        "x-chain-var-samlProviderDestinationName"
+    )
 
 
 @dataclass
@@ -669,10 +717,11 @@ class TransparentProxy:
         proxy_name: The proxy name for the transparent proxy (required)
         namespace: The namespace associated with the transparent proxy (required)
     """
+
     proxy_name: str
     namespace: str
-    
-    
+
+
 @dataclass
 class TransparentProxyDestination:
     """Destination entity with Transparent Proxy configuration.
@@ -682,12 +731,15 @@ class TransparentProxyDestination:
         url: Proxy URL (required)
         headers: Headers required for Transparent Proxy access (required)
     """
+
     name: str
     url: str
     headers: Dict[str, str]
-    
+
     @staticmethod
-    def from_proxy(name: str, transparent_proxy: Optional[TransparentProxy] = None) -> "TransparentProxyDestination":
+    def from_proxy(
+        name: str, transparent_proxy: Optional[TransparentProxy] = None
+    ) -> "TransparentProxyDestination":
         """Create a TransparentProxyDestination from TransparentProxy configuration.
 
         Args:
@@ -695,27 +747,31 @@ class TransparentProxyDestination:
             transparent_proxy: TransparentProxy configuration.
         Returns:
             TransparentProxyDestination: Created destination with transparent proxy settings.
-        
+
         Raises:
             DestinationOperationError: If transparent_proxy is missing.
         """
         if transparent_proxy is None:
-            raise DestinationOperationError("transparent_proxy configuration is required but not provided")
-        
+            raise DestinationOperationError(
+                "transparent_proxy configuration is required but not provided"
+            )
+
         headers: Dict[str, str] = {
             TransparentProxyHeader.X_DESTINATION_NAME.value: name
         }
-        url = 'http://{}.{}'.format(transparent_proxy.proxy_name, transparent_proxy.namespace)
-        
+        url = "http://{}.{}".format(
+            transparent_proxy.proxy_name, transparent_proxy.namespace
+        )
+
         return TransparentProxyDestination(name, url, headers)
-    
+
     def set_header(self, header: TransparentProxyHeader, value: str) -> None:
         """Set a header for the transparent proxy destination.
-        
+
         Args:
             header: The header to set (from TransparentProxyHeader enum).
             value: The value for the header.
-        
+
         Example:
             ```python
             dest = TransparentProxyDestination.from_proxy("my-dest", proxy_config)
@@ -723,4 +779,3 @@ class TransparentProxyDestination:
             ```
         """
         self.headers[header.value] = value
-  

@@ -14,8 +14,13 @@ from sap_cloud_sdk.core.telemetry.operation import Operation
 
 logger = logging.getLogger(__name__)
 
-def _get_secret(env_var_name: str, file_name: str = None, default: str = "",
-               instance_name: str = "aicore-instance") -> str:
+
+def _get_secret(
+    env_var_name: str,
+    file_name: str = None,
+    default: str = "",
+    instance_name: str = "aicore-instance",
+) -> str:
     """
     Get a secret value with the following priority:
     1. Try to read from /etc/secrets/appfnd/aicore/{instance_name}/{file_name}
@@ -36,13 +41,15 @@ def _get_secret(env_var_name: str, file_name: str = None, default: str = "",
     # Try reading from file first
     if os.path.exists(secret_file_path):
         try:
-            with open(secret_file_path, 'r') as f:
+            with open(secret_file_path, "r") as f:
                 value = f.read().strip()
                 if value:
                     logger.info(f"Loaded {env_var_name} from file: {secret_file_path}")
                     return value
         except Exception as e:
-            logger.warning(f"Failed to read {env_var_name} from {secret_file_path}: {e}")
+            logger.warning(
+                f"Failed to read {env_var_name} from {secret_file_path}: {e}"
+            )
 
     # Fall back to environment variable
     value = os.environ.get(env_var_name, default)
@@ -52,6 +59,7 @@ def _get_secret(env_var_name: str, file_name: str = None, default: str = "",
         logger.warning(f"No value found for {env_var_name}, using default")
 
     return value
+
 
 def _get_aicore_base_url(instance_name: str = "aicore-instance") -> str:
     """
@@ -67,14 +75,16 @@ def _get_aicore_base_url(instance_name: str = "aicore-instance") -> str:
     # Try reading from serviceurls file
     if os.path.exists(serviceurls_file):
         try:
-            with open(serviceurls_file, 'r') as f:
+            with open(serviceurls_file, "r") as f:
                 serviceurls_data = json.loads(f.read().strip())
                 ai_api_url = serviceurls_data.get("AI_API_URL", "")
                 if ai_api_url:
                     logger.info(f"Loaded AICORE_BASE_URL from file: {serviceurls_file}")
                     return ai_api_url
         except Exception as e:
-            logger.warning(f"Failed to read AICORE_BASE_URL from {serviceurls_file}: {e}")
+            logger.warning(
+                f"Failed to read AICORE_BASE_URL from {serviceurls_file}: {e}"
+            )
 
     # Fall back to environment variable
     value = os.environ.get("AICORE_BASE_URL", "")
@@ -84,6 +94,7 @@ def _get_aicore_base_url(instance_name: str = "aicore-instance") -> str:
         logger.warning("No value found for AICORE_BASE_URL")
 
     return value
+
 
 @record_metrics(Module.AICORE, Operation.AICORE_SET_CONFIG)
 def set_aicore_config(instance_name: str = "aicore-instance") -> None:
@@ -107,10 +118,10 @@ def set_aicore_config(instance_name: str = "aicore-instance") -> None:
     # Ensure AICORE_AUTH_URL has /oauth/token suffix
     if auth_url and not auth_url.endswith("/oauth/token"):
         auth_url = auth_url.rstrip("/") + "/oauth/token"
-    
+
     if base_url and not base_url.endswith("/v2"):
         base_url = base_url.rstrip("/") + "/v2"
-    
+
     # Set environment variables for LiteLLM
     if client_id:
         os.environ["AICORE_CLIENT_ID"] = client_id

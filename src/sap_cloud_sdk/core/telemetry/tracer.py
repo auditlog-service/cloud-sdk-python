@@ -35,17 +35,17 @@ def context_overlay(
     name: GenAIOperation,
     *,
     attributes: Optional[Dict[str, Any]] = None,
-    kind: trace.SpanKind = trace.SpanKind.INTERNAL
+    kind: trace.SpanKind = trace.SpanKind.INTERNAL,
 ):
     """
     Create a context overlay for tracing GenAI operations.
-    
+
     Works in both sync and async code. The span is automatically closed
     when exiting the context, and exceptions are automatically recorded.
     This context manager integrates seamlessly with the auto-instrumentation
     provided by auto_instrument(), allowing you to create parent spans that
     wrap auto-instrumented AI framework calls.
-    
+
     Args:
         name: GenAI operation name following OpenTelemetry semantic conventions.
               Example: GenAIOperation.CHAT, GenAIOperation.EMBEDDINGS
@@ -53,19 +53,19 @@ def context_overlay(
                    (e.g., {"user.id": "123", "session.id": "abc"})
         kind: Span kind - usually INTERNAL for application code.
               Other options: SERVER, CLIENT, PRODUCER, CONSUMER
-    
+
     Yields:
         The created span (available for advanced use cases like adding events)
-    
+
     Examples:
         Basic GenAI operation:
         ```python
         from sap_cloud_sdk.core.telemetry import context_overlay, GenAIOperation
-        
+
         with context_overlay(GenAIOperation.CHAT):
             response = llm.chat(message)
         ```
-        
+
         With custom attributes:
         ```python
         with context_overlay(
@@ -74,23 +74,23 @@ def context_overlay(
         ):
             response = llm.chat(message)
         ```
-        
+
         In async code (works the same):
         ```python
         async def handle_request():
             with context_overlay(GenAIOperation.CHAT):
                 result = await llm.chat_async(message)
         ```
-        
+
         Nested spans:
         ```python
         with context_overlay(GenAIOperation.RETRIEVAL):
             documents = retrieve_documents(query)
-            
+
             with context_overlay(GenAIOperation.CHAT):
                 response = llm.chat(documents)
         ```
-        
+
         Advanced usage with span events:
         ```python
         with context_overlay(GenAIOperation.EMBEDDINGS) as span:
@@ -100,20 +100,18 @@ def context_overlay(
         ```
     """
     tracer = trace.get_tracer(__name__)
-    
+
     # Convert enum to string if needed
     span_name = str(name)
-    
+
     # Add tenant_id if set
     span_attrs = attributes.copy() if attributes else {}
     tenant_id = get_tenant_id()
     if tenant_id:
         span_attrs[ATTR_SAP_TENANT_ID] = tenant_id
-    
+
     with tracer.start_as_current_span(
-        span_name,
-        kind=kind,
-        attributes=span_attrs
+        span_name, kind=kind, attributes=span_attrs
     ) as span:
         try:
             yield span
@@ -131,7 +129,7 @@ def chat_span(
     *,
     conversation_id: Optional[str] = None,
     server_address: Optional[str] = None,
-    attributes: Optional[Dict[str, Any]] = None
+    attributes: Optional[Dict[str, Any]] = None,
 ) -> ContextManager[Span]:
     """
     Create a span for LLM chat/completion API calls (OpenTelemetry GenAI Inference span).
@@ -210,7 +208,7 @@ def execute_tool_span(
     *,
     tool_type: Optional[str] = None,
     tool_description: Optional[str] = None,
-    attributes: Optional[Dict[str, Any]] = None
+    attributes: Optional[Dict[str, Any]] = None,
 ) -> ContextManager[Span]:
     """
     Create a span for tool execution in agentic workflows (OpenTelemetry GenAI Execute Tool span).
@@ -358,14 +356,14 @@ def invoke_agent_span(
 def get_current_span() -> Span:
     """
     Get the currently active span.
-    
+
     Returns the span that is currently active in the execution context.
     If no span is active, returns a non-recording span (safe to use but
     won't record any data).
-    
+
     Returns:
         Current active span, or a non-recording span if none is active
-    
+
     Examples:
         Add attributes to the current span:
         ```python
@@ -373,7 +371,7 @@ def get_current_span() -> Span:
         span.set_attribute("custom.value", 42)
         span.add_event("milestone_reached")
         ```
-        
+
         Check if span is recording:
         ```python
         span = get_current_span()
@@ -388,15 +386,15 @@ def get_current_span() -> Span:
 def add_span_attribute(key: str, value: Any) -> None:
     """
     Add an attribute to the current active span.
-    
+
     This is a convenience function that adds an attribute to whatever
     span is currently active in the execution context. If no span is
     active, this function does nothing (safe to call).
-    
+
     Args:
         key: Attribute key. Recommend using namespacing (e.g., "app.user.id")
         value: Attribute value. Can be str, int, float, bool, or sequences of these types
-    
+
     Examples:
         Add various attribute types:
         ```python
@@ -406,13 +404,13 @@ def add_span_attribute(key: str, value: Any) -> None:
         add_span_attribute("feature.enabled", True)
         add_span_attribute("tags", ["important", "urgent"])
         ```
-        
+
         Use within a context overlay:
         ```python
         with context_overlay(GenAIOperation.EMBEDDINGS):
             data = load_data()
             add_span_attribute("data.size", len(data))
-            
+
             result = process(data)
             add_span_attribute("result.status", "success")
         ```

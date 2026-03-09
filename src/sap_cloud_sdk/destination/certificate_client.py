@@ -6,17 +6,25 @@ from typing import Optional, TypeVar, Callable
 
 from sap_cloud_sdk.core.telemetry import Module, Operation, record_metrics
 from sap_cloud_sdk.destination._http import DestinationHttp, API_V1
-from sap_cloud_sdk.destination._models import AccessStrategy, Certificate, Level, ListOptions
+from sap_cloud_sdk.destination._models import (
+    AccessStrategy,
+    Certificate,
+    Level,
+    ListOptions,
+)
 from sap_cloud_sdk.destination.exceptions import (
     DestinationOperationError,
     HttpError,
 )
-from sap_cloud_sdk.destination.utils._pagination import PagedResult, parse_pagination_headers
+from sap_cloud_sdk.destination.utils._pagination import (
+    PagedResult,
+    parse_pagination_headers,
+)
 
 _SUBACCOUNT_COLLECTION = "subaccountCertificates"
 _INSTANCE_COLLECTION = "instanceCertificates"
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class CertificateClient:
@@ -64,10 +72,12 @@ class CertificateClient:
 
     # ---------- Read operations ----------
 
-    @record_metrics(Module.DESTINATION, Operation.CERTIFICATE_LIST_INSTANCE_CERTIFICATES)
+    @record_metrics(
+        Module.DESTINATION, Operation.CERTIFICATE_LIST_INSTANCE_CERTIFICATES
+    )
     def list_instance_certificates(
-            self,
-            filter: Optional[ListOptions] = None,
+        self,
+        filter: Optional[ListOptions] = None,
     ) -> PagedResult[Certificate]:
         """List all certificates at the service instance level.
 
@@ -85,14 +95,18 @@ class CertificateClient:
         try:
             return self._list_certificates(level=Level.SERVICE_INSTANCE, filter=filter)
         except HttpError as e:
-            raise DestinationOperationError(f"failed to list instance certificates: {e}")
+            raise DestinationOperationError(
+                f"failed to list instance certificates: {e}"
+            )
 
-    @record_metrics(Module.DESTINATION, Operation.CERTIFICATE_LIST_SUBACCOUNT_CERTIFICATES)
+    @record_metrics(
+        Module.DESTINATION, Operation.CERTIFICATE_LIST_SUBACCOUNT_CERTIFICATES
+    )
     def list_subaccount_certificates(
-            self,
-            access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
-            tenant: Optional[str] = None,
-            filter: Optional[ListOptions] = None,
+        self,
+        access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
+        tenant: Optional[str] = None,
+        filter: Optional[ListOptions] = None,
     ) -> PagedResult[Certificate]:
         """List certificates at subaccount level with an access strategy.
 
@@ -124,7 +138,9 @@ class CertificateClient:
                 ),
             )
         except HttpError as e:
-            raise DestinationOperationError(f"failed to list subaccount certificates: {e}")
+            raise DestinationOperationError(
+                f"failed to list subaccount certificates: {e}"
+            )
 
     @record_metrics(Module.DESTINATION, Operation.CERTIFICATE_GET_INSTANCE_CERTIFICATE)
     def get_instance_certificate(self, name: str) -> Optional[Certificate]:
@@ -144,12 +160,14 @@ class CertificateClient:
         except HttpError as e:
             raise DestinationOperationError(f"failed to get certificate '{name}': {e}")
 
-    @record_metrics(Module.DESTINATION, Operation.CERTIFICATE_GET_SUBACCOUNT_CERTIFICATE)
+    @record_metrics(
+        Module.DESTINATION, Operation.CERTIFICATE_GET_SUBACCOUNT_CERTIFICATE
+    )
     def get_subaccount_certificate(
-            self,
-            name: str,
-            access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
-            tenant: Optional[str] = None,
+        self,
+        name: str,
+        access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
+        tenant: Optional[str] = None,
     ) -> Optional[Certificate]:
         """Get a certificate from the subaccount scope with an access strategy.
 
@@ -175,7 +193,9 @@ class CertificateClient:
             return self._apply_access_strategy(
                 access_strategy=access_strategy,
                 tenant=tenant,
-                fetch_func=lambda t: self._get_certificate(name=name, tenant_subdomain=t, level=Level.SUB_ACCOUNT)
+                fetch_func=lambda t: self._get_certificate(
+                    name=name, tenant_subdomain=t, level=Level.SUB_ACCOUNT
+                ),
             )
         except HttpError as e:
             raise DestinationOperationError(f"failed to get certificate '{name}': {e}")
@@ -183,7 +203,9 @@ class CertificateClient:
     # ---------- Write operations ----------
 
     @record_metrics(Module.DESTINATION, Operation.CERTIFICATE_CREATE_CERTIFICATE)
-    def create_certificate(self, certificate: Certificate, level: Optional[Level] = Level.SUB_ACCOUNT) -> None:
+    def create_certificate(
+        self, certificate: Certificate, level: Optional[Level] = Level.SUB_ACCOUNT
+    ) -> None:
         """Create a certificate.
 
         Args:
@@ -205,10 +227,14 @@ class CertificateClient:
         except HttpError:
             raise
         except Exception as e:
-            raise DestinationOperationError(f"failed to create certificate '{certificate.name}': {e}")
+            raise DestinationOperationError(
+                f"failed to create certificate '{certificate.name}': {e}"
+            )
 
     @record_metrics(Module.DESTINATION, Operation.CERTIFICATE_UPDATE_CERTIFICATE)
-    def update_certificate(self, certificate: Certificate, level: Optional[Level] = Level.SUB_ACCOUNT) -> None:
+    def update_certificate(
+        self, certificate: Certificate, level: Optional[Level] = Level.SUB_ACCOUNT
+    ) -> None:
         """Update a certificate.
 
         Args:
@@ -231,10 +257,14 @@ class CertificateClient:
         except HttpError:
             raise
         except Exception as e:
-            raise DestinationOperationError(f"failed to update certificate '{certificate.name}': {e}")
+            raise DestinationOperationError(
+                f"failed to update certificate '{certificate.name}': {e}"
+            )
 
     @record_metrics(Module.DESTINATION, Operation.CERTIFICATE_DELETE_CERTIFICATE)
-    def delete_certificate(self, name: str, level: Optional[Level] = Level.SUB_ACCOUNT) -> None:
+    def delete_certificate(
+        self, name: str, level: Optional[Level] = Level.SUB_ACCOUNT
+    ) -> None:
         """Delete a certificate.
 
         Args:
@@ -252,15 +282,17 @@ class CertificateClient:
         except HttpError:
             raise
         except Exception as e:
-            raise DestinationOperationError(f"failed to delete certificate '{name}': {e}")
+            raise DestinationOperationError(
+                f"failed to delete certificate '{name}': {e}"
+            )
 
     # ---------- Internal helpers ----------
 
     def _get_certificate(
-            self,
-            name: str,
-            tenant_subdomain: Optional[str] = None,
-            level: Optional[Level] = Level.SUB_ACCOUNT,
+        self,
+        name: str,
+        tenant_subdomain: Optional[str] = None,
+        level: Optional[Level] = Level.SUB_ACCOUNT,
     ) -> Optional[Certificate]:
         """Internal helper to fetch a certificate with optional tenant context.
 
@@ -278,7 +310,9 @@ class CertificateClient:
         """
         try:
             path = self._sub_path_for_level(level)
-            resp = self._http.get(f"{API_V1}/{path}/{name}", tenant_subdomain=tenant_subdomain)
+            resp = self._http.get(
+                f"{API_V1}/{path}/{name}", tenant_subdomain=tenant_subdomain
+            )
             data = resp.json()
 
             return Certificate.from_dict(data)
@@ -287,13 +321,15 @@ class CertificateClient:
                 return None
             raise
         except Exception as e:
-            raise DestinationOperationError(f"invalid JSON in get certificate response: {e}")
+            raise DestinationOperationError(
+                f"invalid JSON in get certificate response: {e}"
+            )
 
     def _list_certificates(
-            self,
-            level: Level = Level.SUB_ACCOUNT,
-            tenant_subdomain: Optional[str] = None,
-            filter: Optional[ListOptions] = None,
+        self,
+        level: Level = Level.SUB_ACCOUNT,
+        tenant_subdomain: Optional[str] = None,
+        filter: Optional[ListOptions] = None,
     ) -> Optional[PagedResult[Certificate]]:
         """Internal helper to list certificates with optional filters.
 
@@ -314,11 +350,15 @@ class CertificateClient:
         try:
             path = self._sub_path_for_level(level)
             params = filter.to_query_params() if filter else {}
-            resp = self._http.get(f"{API_V1}/{path}", tenant_subdomain=tenant_subdomain, params=params)
+            resp = self._http.get(
+                f"{API_V1}/{path}", tenant_subdomain=tenant_subdomain, params=params
+            )
 
             data = resp.json()
             if not isinstance(data, list):
-                raise DestinationOperationError("expected JSON array in list certificates response")
+                raise DestinationOperationError(
+                    "expected JSON array in list certificates response"
+                )
 
             certificates = [Certificate.from_dict(item) for item in data]
 
@@ -333,13 +373,15 @@ class CertificateClient:
         except DestinationOperationError:
             raise
         except Exception as e:
-            raise DestinationOperationError(f"invalid JSON in list certificates response: {e}")
+            raise DestinationOperationError(
+                f"invalid JSON in list certificates response: {e}"
+            )
 
     @staticmethod
     def _apply_access_strategy(
-            access_strategy: AccessStrategy,
-            tenant: Optional[str],
-            fetch_func: Callable[[Optional[str]], T],
+        access_strategy: AccessStrategy,
+        tenant: Optional[str],
+        fetch_func: Callable[[Optional[str]], T],
     ) -> Optional[T]:
         """Apply access strategy pattern for fetching subaccount certificates.
 
@@ -392,9 +434,15 @@ class CertificateClient:
                     result = fetch_func(tenant)
                 return result
             case _:
-                raise DestinationOperationError(f"unknown access strategy: {access_strategy}")
+                raise DestinationOperationError(
+                    f"unknown access strategy: {access_strategy}"
+                )
 
     @staticmethod
     def _sub_path_for_level(level: Level) -> str:
         """Return API sub-path for the given level."""
-        return _INSTANCE_COLLECTION if level == Level.SERVICE_INSTANCE else _SUBACCOUNT_COLLECTION
+        return (
+            _INSTANCE_COLLECTION
+            if level == Level.SERVICE_INSTANCE
+            else _SUBACCOUNT_COLLECTION
+        )

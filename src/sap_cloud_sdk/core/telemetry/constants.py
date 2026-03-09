@@ -4,8 +4,6 @@ This module contains all constants, attribute keys, and type definitions
 used across the telemetry module.
 """
 
-from enum import Enum
-
 # Metric names
 REQUEST_COUNTER_NAME = "sap.cloud_sdk.capability.requests"
 ERROR_COUNTER_NAME = "sap.cloud_sdk.capability.errors"

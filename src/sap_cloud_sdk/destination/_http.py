@@ -26,6 +26,7 @@ API_V2 = "v2"
 
 class HttpMethod(Enum):
     """HTTP method enumeration for request verb selection."""
+
     GET = "GET"
     POST = "POST"
     PUT = "PUT"
@@ -40,8 +41,6 @@ class TokenProvider:
 
         client = BackendApplicationClient(client_id=config.client_id)
         self._session = OAuth2Session(client=client)
-
-
 
     def get_token(self, tenant_subdomain: Optional[str] = None) -> str:
         """Return a valid bearer token for the Destination Service.
@@ -132,7 +131,9 @@ class DestinationHttp:
             headers.update(extra_headers)
 
         # Normalize method to string
-        method_str = method.value if isinstance(method, HttpMethod) else str(method).upper()
+        method_str = (
+            method.value if isinstance(method, HttpMethod) else str(method).upper()
+        )
 
         try:
             resp = self._session.request(
@@ -162,7 +163,14 @@ class DestinationHttp:
 
     # Public helpers for REST verbs
 
-    def get(self, path: str, *, params: Optional[Dict[str, Any]] = None, headers: Optional[Dict[str, str]] = None, tenant_subdomain: Optional[str] = None) -> Response:
+    def get(
+        self,
+        path: str,
+        *,
+        params: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        tenant_subdomain: Optional[str] = None,
+    ) -> Response:
         """Send a GET request.
 
         Args:
@@ -177,9 +185,22 @@ class DestinationHttp:
         Raises:
             HttpError: If the request fails or returns a non-2xx status.
         """
-        return self._request(HttpMethod.GET, path, params=params, extra_headers=headers, tenant_subdomain=tenant_subdomain)
+        return self._request(
+            HttpMethod.GET,
+            path,
+            params=params,
+            extra_headers=headers,
+            tenant_subdomain=tenant_subdomain,
+        )
 
-    def post(self, path: str, *, body: Any, headers: Optional[Dict[str, str]] = None, tenant_subdomain: Optional[str] = None) -> Response:
+    def post(
+        self,
+        path: str,
+        *,
+        body: Any,
+        headers: Optional[Dict[str, str]] = None,
+        tenant_subdomain: Optional[str] = None,
+    ) -> Response:
         """Send a POST request.
 
         Args:
@@ -194,9 +215,22 @@ class DestinationHttp:
         Raises:
             HttpError: If the request fails or returns a non-2xx status.
         """
-        return self._request(HttpMethod.POST, path, json=body, extra_headers=headers, tenant_subdomain=tenant_subdomain)
+        return self._request(
+            HttpMethod.POST,
+            path,
+            json=body,
+            extra_headers=headers,
+            tenant_subdomain=tenant_subdomain,
+        )
 
-    def put(self, path: str, *, body: Any, headers: Optional[Dict[str, str]] = None, tenant_subdomain: Optional[str] = None) -> Response:
+    def put(
+        self,
+        path: str,
+        *,
+        body: Any,
+        headers: Optional[Dict[str, str]] = None,
+        tenant_subdomain: Optional[str] = None,
+    ) -> Response:
         """Send a PUT request.
 
         Args:
@@ -211,9 +245,21 @@ class DestinationHttp:
         Raises:
             HttpError: If the request fails or returns a non-2xx status.
         """
-        return self._request(HttpMethod.PUT, path, json=body, extra_headers=headers, tenant_subdomain=tenant_subdomain)
+        return self._request(
+            HttpMethod.PUT,
+            path,
+            json=body,
+            extra_headers=headers,
+            tenant_subdomain=tenant_subdomain,
+        )
 
-    def delete(self, path: str, *, headers: Optional[Dict[str, str]] = None, tenant_subdomain: Optional[str] = None) -> Response:
+    def delete(
+        self,
+        path: str,
+        *,
+        headers: Optional[Dict[str, str]] = None,
+        tenant_subdomain: Optional[str] = None,
+    ) -> Response:
         """Send a DELETE request.
 
         Args:
@@ -227,4 +273,9 @@ class DestinationHttp:
         Raises:
             HttpError: If the request fails or returns a non-2xx status.
         """
-        return self._request(HttpMethod.DELETE, path, extra_headers=headers, tenant_subdomain=tenant_subdomain)
+        return self._request(
+            HttpMethod.DELETE,
+            path,
+            extra_headers=headers,
+            tenant_subdomain=tenant_subdomain,
+        )

@@ -11,6 +11,6 @@ def _normalize_host(host: str) -> str:
         Normalized host endpoint
     """
     # Fix AWS regional endpoints: s3-region.amazonaws.com -> s3.region.amazonaws.com
-    if host.startswith('s3-') and '.amazonaws.com' in host:
-        return host.replace('s3-', 's3.', 1)
+    if host.startswith("s3-") and host.endswith(".amazonaws.com"):
+        return host.replace("s3-", "s3.", 1)
     return host

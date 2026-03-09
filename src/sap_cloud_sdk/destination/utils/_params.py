@@ -1,4 +1,5 @@
 """Utility functions for building OData filter and pagination parameters."""
+
 from enum import Enum
 from typing import Optional, Dict, List as TypingList
 from urllib.parse import quote
@@ -32,12 +33,12 @@ def build_filter_param(property_name: str, values: TypingList[str]) -> str:
 
 
 def build_pagination_params(
-        page: Optional[int],
-        page_size: Optional[int],
-        page_count: bool,
-        entity_count: bool,
-        has_select: bool,
-        has_filter: bool
+    page: Optional[int],
+    page_size: Optional[int],
+    page_count: bool,
+    entity_count: bool,
+    has_select: bool,
+    has_filter: bool,
 ) -> Dict[str, str]:
     """Validate and build pagination query parameters.
 

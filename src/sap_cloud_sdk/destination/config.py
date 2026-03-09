@@ -40,6 +40,7 @@ from sap_cloud_sdk.destination._models import TransparentProxy
 _TRANSPARENT_PROXY_ENV_VAR = "APPFND_CONHOS_TRANSP_PROXY"
 _TRANSPARENT_PROXY_ENV_VAR = "APPFND_CONHOS_TRANSP_PROXY"
 
+
 @dataclass
 class DestinationConfig:
     """Service binding for Destination Service.
@@ -59,6 +60,7 @@ class DestinationConfig:
         client_secret: OAuth2 client secret
         identityzone: Provider identity zone, used for tenant token URL derivation
     """
+
     # Destination service base (formerly ServiceConfig.url)
     url: str
     # OAuth2 token endpoint and client credentials (formerly OAuthConfig)
@@ -75,6 +77,7 @@ class BindingData:
 
     All fields must be str to satisfy the secret resolver contract.
     """
+
     clientid: str = ""
     clientsecret: str = ""
     url: str = ""  # Auth server base, e.g., https://{provider}.authentication.{region}.hana.ondemand.com
@@ -141,14 +144,17 @@ def load_from_env_or_mount(instance: Optional[str] = None) -> DestinationConfig:
 
     except Exception as e:
         # Rely on the central secret resolver to provide aggregated, generic guidance
-        raise ConfigError(f"failed to load destination configuration for instance='{inst}': {e}")
+        raise ConfigError(
+            f"failed to load destination configuration for instance='{inst}': {e}"
+        )
+
 
 def load_transparent_proxy() -> Optional[TransparentProxy]:
     """Load transparent proxy configuration from environment variable.
     The environment variable APPFND_CONHOS_TRANSP_PROXY should be in the format:
     The environment variable APPFND_CONHOS_TRANSP_PROXY should be in the format:
     {proxy_name}.{namespace}
-     
+
     Returns:
         TransparentProxy if configured, otherwise None if not configured.
     Raises:
@@ -166,8 +172,12 @@ def load_transparent_proxy() -> Optional[TransparentProxy]:
         namespace = parts[1]
 
         if not proxy_name or not namespace:
-            raise ConfigError(f"invalid transparent proxy format in {_TRANSPARENT_PROXY_ENV_VAR}: expected 'proxy-name.namespace', got '{proxy_envvar}'")
+            raise ConfigError(
+                f"invalid transparent proxy format in {_TRANSPARENT_PROXY_ENV_VAR}: expected 'proxy-name.namespace', got '{proxy_envvar}'"
+            )
 
         return TransparentProxy(proxy_name=proxy_name, namespace=namespace)
     except IndexError:
-        raise ConfigError(f"invalid transparent proxy format in {_TRANSPARENT_PROXY_ENV_VAR}: expected 'proxy-name.namespace', got '{proxy_envvar}'")
+        raise ConfigError(
+            f"invalid transparent proxy format in {_TRANSPARENT_PROXY_ENV_VAR}: expected 'proxy-name.namespace', got '{proxy_envvar}'"
+        )

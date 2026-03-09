@@ -5,26 +5,33 @@ from typing import Union
 
 from sap_cloud_sdk.core.auditlog.models import (
     SecurityEvent,
-    DataAccessEvent, 
+    DataAccessEvent,
     DataModificationEvent,
     ConfigurationChangeEvent,
     DataDeletionEvent,
-    ConfigurationDeletionEvent
+    ConfigurationDeletionEvent,
 )
 
-AuditMessage = Union[SecurityEvent, DataAccessEvent, DataModificationEvent, ConfigurationChangeEvent, DataDeletionEvent, ConfigurationDeletionEvent]
+AuditMessage = Union[
+    SecurityEvent,
+    DataAccessEvent,
+    DataModificationEvent,
+    ConfigurationChangeEvent,
+    DataDeletionEvent,
+    ConfigurationDeletionEvent,
+]
 
 
 class Transport(ABC):
     """Abstract base class for audit log transport implementations."""
-    
+
     @abstractmethod
     def send(self, event: AuditMessage) -> None:
         """Send an audit event.
-        
+
         Args:
             event: The audit event to send.
-            
+
         Raises:
             TransportError: If the transport operation fails.
         """

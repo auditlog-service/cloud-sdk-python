@@ -44,4 +44,46 @@ dev = [
     "pytest-bdd>=7.2.0",
     "python-dotenv>=1.0.0",
     "cryptography>=46.0.3",
+    "ruff>=0.8.0",
 ]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+]
+skip_empty = true
+
+[tool.ruff]
+exclude = [
+    ".github",
+    "__pycache__",
+    ".ruff_cache",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "build",
+    "dist",
+    "venv",
+    "tests/"
+]
+
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.11+
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E9", "F", "W"]
+
+ignore = []
+
+[tool.ruff.format]
+# Same as black
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

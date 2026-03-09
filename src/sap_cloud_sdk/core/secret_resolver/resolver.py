@@ -18,7 +18,7 @@ def _validate_inputs(module: str, instance: str) -> None:
 def _validate_path(path: str) -> None:
     """Validate that the given path exists and is a directory."""
     try:
-        st = os.stat(path)
+        _st = os.stat(path)
     except FileNotFoundError as e:
         raise FileNotFoundError(f"path does not exist: {path}") from e
     except OSError as e:
@@ -45,7 +45,9 @@ def _get_field_map(target: Any) -> Dict[str, Tuple[str, type]]:
         # Only support string fields for secrets (consistent with Go SDK)
         # Allow plain 'str' annotations; reject others to keep behavior predictable
         if f.type is not str:
-            raise TypeError(f"target field '{f.name}' is not a string (only str fields are supported)")
+            raise TypeError(
+                f"target field '{f.name}' is not a string (only str fields are supported)"
+            )
         key = f.metadata.get("secret") if hasattr(f, "metadata") else None
         if key and isinstance(key, str) and key.strip():
             mapping[key] = (f.name, f.type)
@@ -54,7 +56,9 @@ def _get_field_map(target: Any) -> Dict[str, Tuple[str, type]]:
     return mapping
 
 
-def _load_from_mount(base_volume_mount: str, module: str, instance: str, target: Any) -> None:
+def _load_from_mount(
+    base_volume_mount: str, module: str, instance: str, target: Any
+) -> None:
     """
     Load secrets from files at:
         {base_volume_mount}/{module}/{instance}/{field_key}
@@ -73,7 +77,9 @@ def _load_from_mount(base_volume_mount: str, module: str, instance: str, target:
                 content = f.read()
         except FileNotFoundError as e:
             # Align with Go: surface precise file error
-            raise FileNotFoundError(f"failed to read secret file {file_path}: {e}") from e
+            raise FileNotFoundError(
+                f"failed to read secret file {file_path}: {e}"
+            ) from e
         except OSError as e:
             raise OSError(f"failed to read secret file {file_path}: {e}") from e
 
@@ -142,7 +148,13 @@ def read_from_mount_and_fallback_to_env_var(
     guidance_parts: list[str] = []
     guidance_parts.append("Secrets could not be loaded from mount or environment.")
     guidance_parts.append("Options:")
-    guidance_parts.append(f"- Provide environment variables like {prefix_upper}_CLIENTID.")
-    guidance_parts.append(f"- Alternatively, mount secrets under {mount_dir} with files for each required key.")
+    guidance_parts.append(
+        f"- Provide environment variables like {prefix_upper}_CLIENTID."
+    )
+    guidance_parts.append(
+        f"- Alternatively, mount secrets under {mount_dir} with files for each required key."
+    )
     guidance = " ".join(guidance_parts)
-    raise RuntimeError(f"module={module} instance={instance} failed to read secrets: {errors} {guidance}")
+    raise RuntimeError(
+        f"module={module} instance={instance} failed to read secrets: {errors} {guidance}"
+    )

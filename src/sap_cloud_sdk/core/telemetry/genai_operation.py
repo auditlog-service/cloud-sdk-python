@@ -6,12 +6,12 @@ from enum import Enum
 class GenAIOperation(str, Enum):
     """
     GenAI operation types following OpenTelemetry semantic conventions.
-    
+
     These operation names should be used when creating spans for GenAI operations
     to ensure compliance with OpenTelemetry semantic conventions.
-    
+
     Reference: https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/
-    
+
     Examples:
         >>> from sap_cloud_sdk.core.telemetry import context_overlay, GenAIOperation
         >>> with context_overlay(GenAIOperation.CHAT):

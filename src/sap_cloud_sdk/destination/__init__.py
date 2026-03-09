@@ -35,7 +35,7 @@ from sap_cloud_sdk.destination._models import (
     ListOptions,
     TransparentProxy,
     TransparentProxyDestination,
-    TransparentProxyHeader
+    TransparentProxyHeader,
 )
 from sap_cloud_sdk.destination.utils._pagination import (
     PaginationInfo,
@@ -57,10 +57,10 @@ from sap_cloud_sdk.destination.exceptions import (
 
 
 def create_client(
-        *,
-        instance: Optional[str] = None,
-        config: Optional[DestinationConfig] = None,
-        use_default_proxy: bool = False,
+    *,
+    instance: Optional[str] = None,
+    config: Optional[DestinationConfig] = None,
+    use_default_proxy: bool = False,
 ):
     """Creates a Destination client with local/cloud detection.
 
@@ -96,9 +96,9 @@ def create_client(
 
 
 def create_fragment_client(
-        *,
-        instance: Optional[str] = None,
-        config: Optional[DestinationConfig] = None,
+    *,
+    instance: Optional[str] = None,
+    config: Optional[DestinationConfig] = None,
 ):
     """Creates a Fragment client with local/cloud detection.
 
@@ -130,9 +130,9 @@ def create_fragment_client(
 
 
 def create_certificate_client(
-        *,
-        instance: Optional[str] = None,
-        config: Optional[DestinationConfig] = None,
+    *,
+    instance: Optional[str] = None,
+    config: Optional[DestinationConfig] = None,
 ):
     """Creates a Certificate client with local/cloud detection.
 

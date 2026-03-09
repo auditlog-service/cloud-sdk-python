@@ -3,7 +3,7 @@
 import os
 from dataclasses import dataclass
 from typing import Optional
-from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from opentelemetry.sdk.resources import SERVICE_NAME
 from sap_cloud_sdk.core._version import get_version
 from sap_cloud_sdk.core.telemetry.constants import (
     ATTR_SERVICE_INSTANCE_ID,
@@ -57,7 +57,7 @@ def _get_hostname() -> str:
 
 def _get_system_role() -> str:
     """Get system role from environment or return default.
-    
+
     Returns:
         System role from APPFND_CONHOS_SYSTEM_ROLE environment variable,
         or "ZAFT" if not set.
@@ -67,11 +67,11 @@ def _get_system_role() -> str:
 
 def create_resource_attributes_from_env() -> dict:
     """Create OpenTelemetry Resource with SDK attributes.
-    
+
     This function creates a Resource with all standard SDK resource attributes,
     ensuring consistency between metrics and traces. Resource attributes are
     static and set once at startup.
-    
+
     Returns:
         Resource with SDK resource attributes including:
         - service.name (from APPFND_CONHOS_APP_NAME, defaults to "unknown")
@@ -84,7 +84,7 @@ def create_resource_attributes_from_env() -> dict:
         - sap.telemetry.sdk.language (constant: "python")
         - sap.telemetry.sdk.version (from package version)
     """
-    
+
     attributes = {
         SERVICE_NAME: _get_conhos_app_name(),
         ATTR_SERVICE_INSTANCE_ID: _get_hostname(),
@@ -97,49 +97,52 @@ def create_resource_attributes_from_env() -> dict:
         ATTR_SAP_SDK_LANGUAGE: "python",
         ATTR_SAP_SDK_VERSION: get_version(),
     }
-    
+
     return attributes
 
 
 @dataclass
 class InstrumentationConfig:
     """Configuration for OpenTelemetry telemetry.
-    
+
     Telemetry is DISABLED by default to avoid connection overhead.
     Set OTEL_EXPORTER_OTLP_ENDPOINT to enable telemetry.
-    
+
     Attributes:
         enabled: Whether telemetry is enabled. Defaults to False (disabled).
         service_name: Name of the service for telemetry. Fixed as 'application-foundation-sdk'.
         otlp_endpoint: OTLP endpoint URL for exporting metrics. Must be set to enable telemetry.
     """
-    
+
     enabled: bool = False
     service_name: str = "application-foundation-sdk"
     otlp_endpoint: str = ""
-    
+
     @classmethod
     def from_env(cls) -> "InstrumentationConfig":
         """Create configuration from environment variables.
-        
+
         Telemetry is disabled by default. To enable:
         1. Set OTEL_EXPORTER_OTLP_ENDPOINT to your collector endpoint
         2. Can be explicitly disabled with CLOUD_SDK_OTEL_DISABLED=true
-        
+
         Environment Variables:
             OTEL_EXPORTER_OTLP_ENDPOINT: OTLP endpoint URL (required to enable telemetry)
             CLOUD_SDK_OTEL_DISABLED: Set to 'true' to explicitly disable telemetry (optional)
-        
+
         Returns:
             InstrumentationConfig instance with values from environment or defaults.
         """
         # Get OTLP endpoint - if not set, telemetry is disabled
         otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
-        
+
         # Enable telemetry only if endpoint is configured
         # Can be explicitly disabled with CLOUD_SDK_OTEL_DISABLED=true
-        enabled = bool(otlp_endpoint) and os.getenv("CLOUD_SDK_OTEL_DISABLED", "false").lower() != "true"
-        
+        enabled = (
+            bool(otlp_endpoint)
+            and os.getenv("CLOUD_SDK_OTEL_DISABLED", "false").lower() != "true"
+        )
+
         return cls(
             enabled=enabled,
             service_name=_get_conhos_app_name(),
@@ -153,7 +156,7 @@ _config: Optional[InstrumentationConfig] = None
 
 def get_config() -> InstrumentationConfig:
     """Get the global telemetry configuration.
-    
+
     Returns:
         InstrumentationConfig instance.
     """
@@ -165,7 +168,7 @@ def get_config() -> InstrumentationConfig:
 
 def set_config(config: InstrumentationConfig) -> None:
     """Set the global telemetry configuration.
-    
+
     Args:
         config: InstrumentationConfig instance to use.
     """

@@ -12,7 +12,7 @@ from sap_cloud_sdk.destination.exceptions import (
     HttpError,
 )
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 _SUBACCOUNT_COLLECTION = "subaccountDestinationFragments"
 _INSTANCE_COLLECTION = "instanceDestinationFragments"
@@ -83,10 +83,10 @@ class FragmentClient:
 
     @record_metrics(Module.DESTINATION, Operation.FRAGMENT_GET_SUBACCOUNT_FRAGMENT)
     def get_subaccount_fragment(
-            self,
-            name: str,
-            access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
-            tenant: Optional[str] = None,
+        self,
+        name: str,
+        access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
+        tenant: Optional[str] = None,
     ) -> Optional[Fragment]:
         """Get a fragment from the subaccount scope with an access strategy.
 
@@ -112,7 +112,9 @@ class FragmentClient:
             return self._apply_access_strategy(
                 access_strategy=access_strategy,
                 tenant=tenant,
-                fetch_func=lambda t: self._get_fragment(name=name, tenant_subdomain=t, level=Level.SUB_ACCOUNT),
+                fetch_func=lambda t: self._get_fragment(
+                    name=name, tenant_subdomain=t, level=Level.SUB_ACCOUNT
+                ),
                 empty_value=None,
             )
         except HttpError as e:
@@ -135,9 +137,9 @@ class FragmentClient:
 
     @record_metrics(Module.DESTINATION, Operation.FRAGMENT_LIST_SUBACCOUNT_FRAGMENTS)
     def list_subaccount_fragments(
-            self,
-            access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
-            tenant: Optional[str] = None,
+        self,
+        access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
+        tenant: Optional[str] = None,
     ) -> List[Fragment]:
         """List fragments from the subaccount scope with an access strategy.
 
@@ -162,7 +164,9 @@ class FragmentClient:
             return self._apply_access_strategy(
                 access_strategy=access_strategy,
                 tenant=tenant,
-                fetch_func=lambda t: self._list_fragments(level=Level.SUB_ACCOUNT, tenant_subdomain=t),
+                fetch_func=lambda t: self._list_fragments(
+                    level=Level.SUB_ACCOUNT, tenant_subdomain=t
+                ),
                 empty_value=[],
             )
         except HttpError as e:
@@ -171,7 +175,9 @@ class FragmentClient:
     # ---------- Write operations ----------
 
     @record_metrics(Module.DESTINATION, Operation.FRAGMENT_CREATE_FRAGMENT)
-    def create_fragment(self, fragment: Fragment, level: Optional[Level] = Level.SUB_ACCOUNT) -> None:
+    def create_fragment(
+        self, fragment: Fragment, level: Optional[Level] = Level.SUB_ACCOUNT
+    ) -> None:
         """Create a fragment.
 
         Args:
@@ -193,10 +199,14 @@ class FragmentClient:
         except HttpError:
             raise
         except Exception as e:
-            raise DestinationOperationError(f"failed to create fragment '{fragment.name}': {e}")
+            raise DestinationOperationError(
+                f"failed to create fragment '{fragment.name}': {e}"
+            )
 
     @record_metrics(Module.DESTINATION, Operation.FRAGMENT_UPDATE_FRAGMENT)
-    def update_fragment(self, fragment: Fragment, level: Optional[Level] = Level.SUB_ACCOUNT) -> None:
+    def update_fragment(
+        self, fragment: Fragment, level: Optional[Level] = Level.SUB_ACCOUNT
+    ) -> None:
         """Update a fragment.
 
         Args:
@@ -219,10 +229,14 @@ class FragmentClient:
         except HttpError:
             raise
         except Exception as e:
-            raise DestinationOperationError(f"failed to update fragment '{fragment.name}': {e}")
+            raise DestinationOperationError(
+                f"failed to update fragment '{fragment.name}': {e}"
+            )
 
     @record_metrics(Module.DESTINATION, Operation.FRAGMENT_DELETE_FRAGMENT)
-    def delete_fragment(self, name: str, level: Optional[Level] = Level.SUB_ACCOUNT) -> None:
+    def delete_fragment(
+        self, name: str, level: Optional[Level] = Level.SUB_ACCOUNT
+    ) -> None:
         """Delete a fragment.
 
         Args:
@@ -245,10 +259,10 @@ class FragmentClient:
     # ---------- Internal helpers ----------
 
     def _get_fragment(
-            self,
-            name: str,
-            tenant_subdomain: Optional[str] = None,
-            level: Optional[Level] = Level.SUB_ACCOUNT,
+        self,
+        name: str,
+        tenant_subdomain: Optional[str] = None,
+        level: Optional[Level] = Level.SUB_ACCOUNT,
     ) -> Optional[Fragment]:
         """Internal helper to fetch a fragment with optional tenant context.
 
@@ -266,7 +280,9 @@ class FragmentClient:
         """
         try:
             path = self._sub_path_for_level(level)
-            resp = self._http.get(f"{API_V1}/{path}/{name}", tenant_subdomain=tenant_subdomain)
+            resp = self._http.get(
+                f"{API_V1}/{path}/{name}", tenant_subdomain=tenant_subdomain
+            )
             data = resp.json()
 
             return Fragment.from_dict(data)
@@ -275,12 +291,14 @@ class FragmentClient:
                 return None
             raise
         except Exception as e:
-            raise DestinationOperationError(f"invalid JSON in get fragment response: {e}")
+            raise DestinationOperationError(
+                f"invalid JSON in get fragment response: {e}"
+            )
 
     def _list_fragments(
-            self,
-            level: Level,
-            tenant_subdomain: Optional[str] = None,
+        self,
+        level: Level,
+        tenant_subdomain: Optional[str] = None,
     ) -> List[Fragment]:
         """Internal helper to list fragments with optional tenant context.
 
@@ -301,7 +319,9 @@ class FragmentClient:
             data = resp.json()
 
             if not isinstance(data, list):
-                raise DestinationOperationError(f"expected list in response, got {type(data)}")
+                raise DestinationOperationError(
+                    f"expected list in response, got {type(data)}"
+                )
 
             return [Fragment.from_dict(item) for item in data]
         except HttpError as e:
@@ -311,14 +331,16 @@ class FragmentClient:
         except DestinationOperationError:
             raise
         except Exception as e:
-            raise DestinationOperationError(f"invalid JSON in list fragments response: {e}")
+            raise DestinationOperationError(
+                f"invalid JSON in list fragments response: {e}"
+            )
 
     def _apply_access_strategy(
-            self,
-            access_strategy: AccessStrategy,
-            tenant: Optional[str],
-            fetch_func: Callable[[Optional[str]], T],
-            empty_value: T,
+        self,
+        access_strategy: AccessStrategy,
+        tenant: Optional[str],
+        fetch_func: Callable[[Optional[str]], T],
+        empty_value: T,
     ) -> T:
         """Apply access strategy pattern for fetching resources.
 
@@ -366,9 +388,15 @@ class FragmentClient:
                     result = fetch_func(tenant)
                 return result
             case _:
-                raise DestinationOperationError(f"unknown access strategy: {access_strategy}")
+                raise DestinationOperationError(
+                    f"unknown access strategy: {access_strategy}"
+                )
 
     @staticmethod
     def _sub_path_for_level(level: Level) -> str:
         """Return API sub-path for the given level."""
-        return _INSTANCE_COLLECTION if level == Level.SERVICE_INSTANCE else _SUBACCOUNT_COLLECTION
+        return (
+            _INSTANCE_COLLECTION
+            if level == Level.SERVICE_INSTANCE
+            else _SUBACCOUNT_COLLECTION
+        )

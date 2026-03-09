@@ -5,14 +5,15 @@ The create_client() function detects the environment:
 
 Usage:
     from sap_cloud_sdk.core.auditlog import create_client, SecurityEvent
-    
+
     # Auto-detection based on environment
     client = create_client()
-    
+
     # Create and log events
     event = SecurityEvent(data="Login attempt", success=True)
     client.log(event)
 """
+
 from typing import Optional
 
 from sap_cloud_sdk.core.telemetry import Module
@@ -30,21 +31,23 @@ from sap_cloud_sdk.core.auditlog.models import (
     SecurityEventAttribute,
     DataAccessAttribute,
     ChangeAttribute,
-    DeletedAttribute
+    DeletedAttribute,
 )
-from sap_cloud_sdk.core.auditlog.config import (
-    AuditLogConfig,
-    _load_config_from_env
-)
+from sap_cloud_sdk.core.auditlog.config import AuditLogConfig, _load_config_from_env
 from sap_cloud_sdk.core.auditlog.exceptions import (
     AuditLogError,
     ClientCreationError,
     TransportError,
 )
 
-def create_client(*, config: Optional[AuditLogConfig] = None, _telemetry_source: Optional[Module] = None) -> AuditLogClient:
+
+def create_client(
+    *,
+    config: Optional[AuditLogConfig] = None,
+    _telemetry_source: Optional[Module] = None,
+) -> AuditLogClient:
     """Creates an AuditLogClient with automatic transport selection.
-    
+
     Uses HTTP transport with OAuth2 authentication
 
     Args:
@@ -52,10 +55,10 @@ def create_client(*, config: Optional[AuditLogConfig] = None, _telemetry_source:
                 If None, auto-detects environment and loads config.
         _telemetry_source: Internal parameter to track which SDK module created this client.
                            Should not be used by end users.
-    
+
     Returns:
         AuditLogClient: Configured client ready for audit operations.
-        
+
     Raises:
         ClientCreationError: If client creation fails due to configuration issues.
     """
@@ -77,7 +80,7 @@ __all__ = [
     # Public user-facing types
     "SecurityEvent",
     "DataAccessEvent",
-    "DataModificationEvent", 
+    "DataModificationEvent",
     "ConfigurationChangeEvent",
     "DataDeletionEvent",
     "ConfigurationDeletionEvent",
@@ -86,7 +89,7 @@ __all__ = [
     "AuditLogConfig",
     # Attribute types
     "SecurityEventAttribute",
-    "DataAccessAttribute", 
+    "DataAccessAttribute",
     "ChangeAttribute",
     "DeletedAttribute",
     # Factory function

@@ -1,12 +1,14 @@
 import logging
 import os
-from typing import Optional
 
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from traceloop.sdk import Traceloop
 
 from sap_cloud_sdk.core.telemetry import Module, Operation
-from sap_cloud_sdk.core.telemetry.config import create_resource_attributes_from_env, _get_conhos_app_name
+from sap_cloud_sdk.core.telemetry.config import (
+    create_resource_attributes_from_env,
+    _get_conhos_app_name,
+)
 from sap_cloud_sdk.core.telemetry.genai_attribute_transformer import (
     GenAIAttributeTransformer,
 )
@@ -27,7 +29,9 @@ def auto_instrument():
     otel_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
 
     if not otel_endpoint:
-        logger.warning("OTEL_EXPORTER_OTLP_ENDPOINT not set. Instrumentation will be disabled.")
+        logger.warning(
+            "OTEL_EXPORTER_OTLP_ENDPOINT not set. Instrumentation will be disabled."
+        )
         return
 
     if "v1/traces" not in otel_endpoint:
@@ -39,10 +43,12 @@ def auto_instrument():
     exporter = GenAIAttributeTransformer(base_exporter)
 
     resource = create_resource_attributes_from_env()
-    Traceloop.init(app_name=_get_conhos_app_name(),
-                   exporter=exporter,
-                   resource_attributes=resource,
-                   should_enrich_metrics=True,
-                   disable_batch=True)
+    Traceloop.init(
+        app_name=_get_conhos_app_name(),
+        exporter=exporter,
+        resource_attributes=resource,
+        should_enrich_metrics=True,
+        disable_batch=True,
+    )
 
     logger.info("Cloud auto instrumentation initialized successfully")

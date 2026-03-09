@@ -6,10 +6,10 @@ from enum import Enum
 class Module(str, Enum):
     """SDK module identifiers for telemetry."""
 
-    AICORE               = "aicore"
-    AUDITLOG             = "auditlog"
-    DESTINATION          = "destination"
-    OBJECTSTORE          = "objectstore"
-    
+    AICORE = "aicore"
+    AUDITLOG = "auditlog"
+    DESTINATION = "destination"
+    OBJECTSTORE = "objectstore"
+
     def __str__(self) -> str:
         return self.value

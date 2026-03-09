@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 _meter_provider: Optional[MeterProvider] = None
 _meter: Optional[metrics.Meter] = None
 
+
 def get_meter() -> metrics.Meter:
     """Get or create the global meter instance.
 
@@ -35,15 +36,10 @@ def get_meter() -> metrics.Meter:
             _meter_provider = _setup_meter_provider()
 
         if _meter_provider is not None:
-            _meter = metrics.get_meter(
-                SDK_PACKAGE_NAME,
-                version=get_version()
-            )
+            _meter = metrics.get_meter(SDK_PACKAGE_NAME, version=get_version())
         else:
             # Return a no-op meter if provider setup failed
-            _meter = metrics.get_meter_provider().get_meter(
-                SDK_PACKAGE_NAME
-            )
+            _meter = metrics.get_meter_provider().get_meter(SDK_PACKAGE_NAME)
 
     return _meter
 
@@ -64,44 +60,39 @@ def shutdown() -> None:
 
 def _setup_meter_provider() -> Optional[MeterProvider]:
     """Set up the OpenTelemetry meter provider.
-    
+
     Returns:
         MeterProvider instance if enabled, None if disabled.
     """
     config = get_config()
-    
+
     if not config.enabled:
         logger.debug("OpenTelemetry telemetry is disabled")
         return None
-    
+
     try:
         resource = Resource.create(create_resource_attributes_from_env())
-        
+
         # Create OTLP exporter
         exporter = OTLPMetricExporter(
             endpoint=config.otlp_endpoint,
         )
-        
+
         # Create metric reader with periodic export
-        reader = PeriodicExportingMetricReader(
-            exporter=exporter
-        )
-        
+        reader = PeriodicExportingMetricReader(exporter=exporter)
+
         # Create and set meter provider
-        provider = MeterProvider(
-            resource=resource,
-            metric_readers=[reader]
-        )
-        
+        provider = MeterProvider(resource=resource, metric_readers=[reader])
+
         metrics.set_meter_provider(provider)
         logger.info(
             f"OpenTelemetry meter provider initialized. "
             f"Service: {config.service_name}, "
             f"Endpoint: {config.otlp_endpoint}"
         )
-        
+
         return provider
-    
+
     except Exception as e:
         logger.error(f"Failed to initialize OpenTelemetry meter provider: {e}")
         return None

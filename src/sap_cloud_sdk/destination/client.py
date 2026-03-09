@@ -20,9 +20,12 @@ from sap_cloud_sdk.destination.exceptions import (
     DestinationOperationError,
     HttpError,
 )
-from sap_cloud_sdk.destination.utils._pagination import PagedResult, parse_pagination_headers
+from sap_cloud_sdk.destination.utils._pagination import (
+    PagedResult,
+    parse_pagination_headers,
+)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 _SUBACCOUNT_COLLECTION = "subaccountDestinations"
 _INSTANCE_COLLECTION = "instanceDestinations"
@@ -118,8 +121,12 @@ class DestinationClient:
 
     # ---------- Read operations ----------
 
-    @record_metrics(Module.DESTINATION, Operation.DESTINATION_LIST_INSTANCE_DESTINATIONS)
-    def list_instance_destinations(self, filter: Optional[ListOptions] = None) -> PagedResult[Destination]:
+    @record_metrics(
+        Module.DESTINATION, Operation.DESTINATION_LIST_INSTANCE_DESTINATIONS
+    )
+    def list_instance_destinations(
+        self, filter: Optional[ListOptions] = None
+    ) -> PagedResult[Destination]:
         """List all destinations from the service instance scope.
 
         Args:
@@ -134,16 +141,22 @@ class DestinationClient:
             DestinationOperationError: If an HTTP error occurs or response parsing fails.
         """
         try:
-            return self._list_destinations(level=Level.SERVICE_INSTANCE, tenant_subdomain=None, filter=filter)
+            return self._list_destinations(
+                level=Level.SERVICE_INSTANCE, tenant_subdomain=None, filter=filter
+            )
         except HttpError as e:
-            raise DestinationOperationError(f"failed to list instance destinations: {e}")
+            raise DestinationOperationError(
+                f"failed to list instance destinations: {e}"
+            )
 
-    @record_metrics(Module.DESTINATION, Operation.DESTINATION_LIST_SUBACCOUNT_DESTINATIONS)
+    @record_metrics(
+        Module.DESTINATION, Operation.DESTINATION_LIST_SUBACCOUNT_DESTINATIONS
+    )
     def list_subaccount_destinations(
-            self,
-            access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
-            tenant: Optional[str] = None,
-            filter: Optional[ListOptions] = None,
+        self,
+        access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
+        tenant: Optional[str] = None,
+        filter: Optional[ListOptions] = None,
     ) -> PagedResult[Destination]:
         """List all destinations from the subaccount scope with an access strategy.
 
@@ -170,13 +183,19 @@ class DestinationClient:
             return self._apply_access_strategy(
                 access_strategy=access_strategy,
                 tenant=tenant,
-                fetch_func=lambda t: self._list_destinations(level=Level.SUB_ACCOUNT, tenant_subdomain=t, filter=filter),
+                fetch_func=lambda t: self._list_destinations(
+                    level=Level.SUB_ACCOUNT, tenant_subdomain=t, filter=filter
+                ),
             )
         except HttpError as e:
-            raise DestinationOperationError(f"failed to list subaccount destinations: {e}")
+            raise DestinationOperationError(
+                f"failed to list subaccount destinations: {e}"
+            )
 
     @record_metrics(Module.DESTINATION, Operation.DESTINATION_GET_INSTANCE_DESTINATION)
-    def get_instance_destination(self, name: str, proxy_enabled: Optional[bool] = None) -> Optional[Destination | TransparentProxyDestination]:
+    def get_instance_destination(
+        self, name: str, proxy_enabled: Optional[bool] = None
+    ) -> Optional[Destination | TransparentProxyDestination]:
         """Get a destination from the service instance scope.
 
         Args:
@@ -192,19 +211,25 @@ class DestinationClient:
         """
         try:
             if self._should_use_proxy(proxy_enabled):
-                return TransparentProxyDestination.from_proxy(name=name, transparent_proxy=self._transparent_proxy)  
-                      
-            return self._get_destination(name=name, tenant_subdomain=None, level=Level.SERVICE_INSTANCE)
+                return TransparentProxyDestination.from_proxy(
+                    name=name, transparent_proxy=self._transparent_proxy
+                )
+
+            return self._get_destination(
+                name=name, tenant_subdomain=None, level=Level.SERVICE_INSTANCE
+            )
         except HttpError as e:
             raise DestinationOperationError(f"failed to get destination '{name}': {e}")
 
-    @record_metrics(Module.DESTINATION, Operation.DESTINATION_GET_SUBACCOUNT_DESTINATION)
+    @record_metrics(
+        Module.DESTINATION, Operation.DESTINATION_GET_SUBACCOUNT_DESTINATION
+    )
     def get_subaccount_destination(
-            self,
-            name: str,
-            access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
-            tenant: Optional[str] = None,
-            proxy_enabled: Optional[bool] = None,
+        self,
+        name: str,
+        access_strategy: AccessStrategy = AccessStrategy.SUBSCRIBER_FIRST,
+        tenant: Optional[str] = None,
+        proxy_enabled: Optional[bool] = None,
     ) -> Optional[Destination | TransparentProxyDestination]:
         """Get a destination from the subaccount scope with an access strategy.
 
@@ -230,23 +255,27 @@ class DestinationClient:
         """
         try:
             if self._should_use_proxy(proxy_enabled) and self._transparent_proxy:
-                return TransparentProxyDestination.from_proxy(name=name, transparent_proxy=self._transparent_proxy)
-            
+                return TransparentProxyDestination.from_proxy(
+                    name=name, transparent_proxy=self._transparent_proxy
+                )
+
             return self._apply_access_strategy(
                 access_strategy=access_strategy,
                 tenant=tenant,
-                fetch_func=lambda t: self._get_destination(name=name, tenant_subdomain=t, level=Level.SUB_ACCOUNT),
+                fetch_func=lambda t: self._get_destination(
+                    name=name, tenant_subdomain=t, level=Level.SUB_ACCOUNT
+                ),
             )
         except HttpError as e:
             raise DestinationOperationError(f"failed to get destination '{name}': {e}")
 
     @record_metrics(Module.DESTINATION, Operation.DESTINATION_GET_DESTINATION)
     def get_destination(
-            self,
-            name: str,
-            level: Optional[Level] = None,
-            options: Optional[ConsumptionOptions] = None,
-            proxy_enabled: Optional[bool] = None,
+        self,
+        name: str,
+        level: Optional[Level] = None,
+        options: Optional[ConsumptionOptions] = None,
+        proxy_enabled: Optional[bool] = None,
     ) -> Optional[Destination | TransparentProxyDestination]:
         """Consume a destination using the v2 runtime API.
 
@@ -294,7 +323,7 @@ class DestinationClient:
             # With tenant context for user token exchange
             opts = ConsumptionOptions(tenant="tenant-subdomain")
             dest = client.get_destination("my-api", options=opts)
-            
+
             # Both fragment and tenant
             opts = ConsumptionOptions(fragment_name="prod", tenant="tenant-1")
             dest = client.get_destination("my-api", options=opts)
@@ -305,10 +334,12 @@ class DestinationClient:
         """
         try:
             if self._should_use_proxy(proxy_enabled):
-                return TransparentProxyDestination.from_proxy(name=name, transparent_proxy=self._transparent_proxy)
+                return TransparentProxyDestination.from_proxy(
+                    name=name, transparent_proxy=self._transparent_proxy
+                )
 
             headers = {}
-            
+
             if options:
                 if options.fragment_name:
                     headers["X-fragment-name"] = options.fragment_name
@@ -328,7 +359,9 @@ class DestinationClient:
             # Parse v2 response: destinationConfiguration + authTokens + certificates
             dest_config = data.get("destinationConfiguration")
             if not dest_config:
-                raise DestinationOperationError("missing destinationConfiguration in v2 response")
+                raise DestinationOperationError(
+                    "missing destinationConfiguration in v2 response"
+                )
 
             # Add runtime data to the response for parsing
             dest_config["authTokens"] = data.get("authTokens", [])
@@ -338,14 +371,20 @@ class DestinationClient:
         except HttpError as e:
             if getattr(e, "status_code", None) == 404:
                 return None
-            raise DestinationOperationError(f"failed to consume destination '{name}': {e}")
+            raise DestinationOperationError(
+                f"failed to consume destination '{name}': {e}"
+            )
         except Exception as e:
-            raise DestinationOperationError(f"failed to parse consume destination response: {e}")
+            raise DestinationOperationError(
+                f"failed to parse consume destination response: {e}"
+            )
 
     # ---------- Write operations ----------
 
     @record_metrics(Module.DESTINATION, Operation.DESTINATION_CREATE_DESTINATION)
-    def create_destination(self, dest: Destination, level: Optional[Level] = Level.SUB_ACCOUNT) -> None:
+    def create_destination(
+        self, dest: Destination, level: Optional[Level] = Level.SUB_ACCOUNT
+    ) -> None:
         """Create a destination.
 
         Args:
@@ -367,10 +406,14 @@ class DestinationClient:
         except HttpError:
             raise
         except Exception as e:
-            raise DestinationOperationError(f"failed to create destination '{dest.name}': {e}")
+            raise DestinationOperationError(
+                f"failed to create destination '{dest.name}': {e}"
+            )
 
     @record_metrics(Module.DESTINATION, Operation.DESTINATION_UPDATE_DESTINATION)
-    def update_destination(self, dest: Destination, level: Optional[Level] = Level.SUB_ACCOUNT) -> None:
+    def update_destination(
+        self, dest: Destination, level: Optional[Level] = Level.SUB_ACCOUNT
+    ) -> None:
         """Update a destination.
 
         Args:
@@ -393,10 +436,14 @@ class DestinationClient:
         except HttpError:
             raise
         except Exception as e:
-            raise DestinationOperationError(f"failed to update destination '{dest.name}': {e}")
+            raise DestinationOperationError(
+                f"failed to update destination '{dest.name}': {e}"
+            )
 
     @record_metrics(Module.DESTINATION, Operation.DESTINATION_DELETE_DESTINATION)
-    def delete_destination(self, name: str, level: Optional[Level] = Level.SUB_ACCOUNT) -> None:
+    def delete_destination(
+        self, name: str, level: Optional[Level] = Level.SUB_ACCOUNT
+    ) -> None:
         """Delete a destination.
 
         Args:
@@ -414,15 +461,17 @@ class DestinationClient:
         except HttpError:
             raise
         except Exception as e:
-            raise DestinationOperationError(f"failed to delete destination '{name}': {e}")
+            raise DestinationOperationError(
+                f"failed to delete destination '{name}': {e}"
+            )
 
     # ---------- Internal helpers ----------
 
     def _get_destination(
-            self,
-            name: str,
-            tenant_subdomain: Optional[str] = None,
-            level: Optional[Level] = Level.SUB_ACCOUNT,
+        self,
+        name: str,
+        tenant_subdomain: Optional[str] = None,
+        level: Optional[Level] = Level.SUB_ACCOUNT,
     ) -> Optional[Destination]:
         """Internal helper to fetch a destination with optional tenant context.
 
@@ -440,7 +489,9 @@ class DestinationClient:
         """
         try:
             path = self._sub_path_for_level(level)
-            resp = self._http.get(f"{API_V1}/{path}/{name}", tenant_subdomain=tenant_subdomain)
+            resp = self._http.get(
+                f"{API_V1}/{path}/{name}", tenant_subdomain=tenant_subdomain
+            )
             data = resp.json()
 
             return Destination.from_dict(data)
@@ -449,13 +500,15 @@ class DestinationClient:
                 return None
             raise
         except Exception as e:
-            raise DestinationOperationError(f"invalid JSON in get destination response: {e}")
+            raise DestinationOperationError(
+                f"invalid JSON in get destination response: {e}"
+            )
 
     def _list_destinations(
-            self,
-            level: Level,
-            tenant_subdomain: Optional[str] = None,
-            filter: Optional[ListOptions] = None,
+        self,
+        level: Level,
+        tenant_subdomain: Optional[str] = None,
+        filter: Optional[ListOptions] = None,
     ) -> Optional[PagedResult[Destination]]:
         """Internal helper to list destinations with optional tenant context and filters.
 
@@ -476,11 +529,17 @@ class DestinationClient:
         try:
             path = self._sub_path_for_level(level)
             query_params = filter.to_query_params() if filter else {}
-            resp = self._http.get(f"{API_V1}/{path}", tenant_subdomain=tenant_subdomain, params=query_params)
+            resp = self._http.get(
+                f"{API_V1}/{path}",
+                tenant_subdomain=tenant_subdomain,
+                params=query_params,
+            )
             data = resp.json()
 
             if not isinstance(data, list):
-                raise DestinationOperationError(f"expected list in response, got {type(data).__name__}")
+                raise DestinationOperationError(
+                    f"expected list in response, got {type(data).__name__}"
+                )
 
             # Parse destinations, skipping any with missing required fields
             destinations = []
@@ -503,7 +562,9 @@ class DestinationClient:
         except DestinationOperationError:
             raise
         except Exception as e:
-            raise DestinationOperationError(f"invalid JSON in list destinations response: {e}")
+            raise DestinationOperationError(
+                f"invalid JSON in list destinations response: {e}"
+            )
 
     def _should_use_proxy(self, proxy_enabled: Optional[bool]) -> bool:
         """Determine whether to use proxy based on provided parameter or client default.
@@ -514,13 +575,15 @@ class DestinationClient:
         Returns:
             True if proxy should be used, False otherwise.
         """
-        return proxy_enabled if proxy_enabled is not None else self._client_proxy_enabled
-    
+        return (
+            proxy_enabled if proxy_enabled is not None else self._client_proxy_enabled
+        )
+
     @staticmethod
     def _apply_access_strategy(
-            access_strategy: AccessStrategy,
-            tenant: Optional[str],
-            fetch_func: Callable[[Optional[str]], T],
+        access_strategy: AccessStrategy,
+        tenant: Optional[str],
+        fetch_func: Callable[[Optional[str]], T],
     ) -> Optional[T]:
         """Apply access strategy pattern for fetching resources from subaccount scope.
 
@@ -573,12 +636,18 @@ class DestinationClient:
                     result = fetch_func(tenant)
                 return result
             case _:
-                raise DestinationOperationError(f"unknown access strategy: {access_strategy}")
+                raise DestinationOperationError(
+                    f"unknown access strategy: {access_strategy}"
+                )
 
     @staticmethod
     def _sub_path_for_level(level: Level) -> str:
         """Return API sub-path for the given level."""
-        return _INSTANCE_COLLECTION if level == Level.SERVICE_INSTANCE else _SUBACCOUNT_COLLECTION
+        return (
+            _INSTANCE_COLLECTION
+            if level == Level.SERVICE_INSTANCE
+            else _SUBACCOUNT_COLLECTION
+        )
 
     @staticmethod
     def _map_level_to_api(level: Level) -> str:
