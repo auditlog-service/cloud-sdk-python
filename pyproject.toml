@@ -10,23 +10,12 @@ requires-python = ">=3.11"
 dependencies = [
     "minio>=7.2.16",
     "setuptools>=80.9.0",
-    "testcontainers>=4.13.1",
     "requests>=2.31.0",
     "requests-oauthlib>=1.4.0",
     "pydantic>=2.12.3",
     "hatchling>=1.27.0",
     "opentelemetry-exporter-otlp-proto-grpc>=1.20.0",
     "traceloop-sdk"
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.4.0",
-    "mypy>=1.5.0",
-    "pytest-cov>=4.0.0",
-]
-local-dev = [
-    "testcontainers[minio]>=4.13.1",
 ]
 
 [build-system]
@@ -45,6 +34,11 @@ dev = [
     "python-dotenv>=1.0.0",
     "cryptography>=46.0.3",
     "ruff>=0.8.0",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests as integration tests (requires Docker)",
 ]
 
 [tool.coverage.run]
