@@ -18,13 +18,13 @@ env:
 jobs:
   test:
     name: Unit Tests with Coverage
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER && fromJSON(vars.RUNNER) || 'ubuntu-latest' }}
     steps:
       - name: "Checkout Repository"
         uses: actions/checkout@v4
 
       - name: "Install uv"
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
           enable-cache: true
@@ -39,6 +39,7 @@ jobs:
 
       - name: "Upload Coverage Report"
         uses: actions/upload-artifact@v4
+        if: contains(github.server_url, 'github.com')
         with:
           name: coverage-report
           path: |
