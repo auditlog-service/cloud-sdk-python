@@ -13,7 +13,7 @@ SCHEMA_URL = "https://github.tools.sap/wg-observability/telemetry-semantic-conve
 _SOURCE_ARG_PATTERN = re.compile(r"[a-zA-Z0-9._/~-]+")
 
 
-def validate_source_arg(value: str, name: str) -> None:
+def _validate_source_arg(value: str, name: str) -> None:
     """Validate that *value* only contains characters in ``[a-zA-Z0-9._-/~]``.
 
     Args:
@@ -67,5 +67,5 @@ class AuditLogNGConfig:
         """Validate required fields."""
         if not self.endpoint:
             raise ValueError("endpoint is required")
-        validate_source_arg(self.deployment_id, "deployment_id")
-        validate_source_arg(self.namespace, "namespace")
+        _validate_source_arg(self.deployment_id, "deployment_id")
+        _validate_source_arg(self.namespace, "namespace")

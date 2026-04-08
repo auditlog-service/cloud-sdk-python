@@ -8,14 +8,8 @@ BUF_DIR         := src/buf
 .PHONY: proto
 
 proto:
-# Generate code using buf CLI
 	cd $(AUDITLOG_NG_DIR) && buf dep update && buf generate --include-imports
-
-# Add __init__.py files to generated code
-    find $(GEN_DIR) -type d -exec touch {}/__init__.py \;
-
-# Move /buf generated code to the root
-	rm -rf $(BUF_DIR);
-	mv $(GEN_DIR)/buf $(BUF_DIR);
-	rm -rf $(GEN_DIR)/buf;
-
+	find $(GEN_DIR) -type d -exec touch {}/__init__.py \;
+	rm -rf $(BUF_DIR)
+	mv $(GEN_DIR)/buf $(BUF_DIR)
+	rm -rf $(GEN_DIR)/buf

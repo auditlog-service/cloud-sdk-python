@@ -103,7 +103,7 @@ client = create_client(
 )
 ```
 
-> ⚠️ **Important:** `deployment_id` and `namespace` are validated at construction time.  
+> ⚠️ **Important:** `deployment_id` and `namespace` are validated at construction time.
 > Invalid values (e.g. containing spaces) will raise a `ValueError`.
 
 ### Step 3: Build an Audit Event

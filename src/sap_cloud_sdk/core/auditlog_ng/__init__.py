@@ -33,7 +33,6 @@ from sap_cloud_sdk.core.auditlog_ng.config import (
 from sap_cloud_sdk.core.auditlog_ng.exceptions import (
     AuditLogNGError,
     ClientCreationError,
-    TransportError,
     ValidationError,
 )
 
@@ -122,6 +121,5 @@ __all__ = [
     # Exceptions
     "AuditLogNGError",
     "ClientCreationError",
-    "TransportError",
     "ValidationError",
 ]

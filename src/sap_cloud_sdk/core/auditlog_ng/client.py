@@ -25,7 +25,7 @@ from opentelemetry._logs.severity import SeverityNumber
 
 from sap_cloud_sdk.core.auditlog_ng.config import (
     AuditLogNGConfig,
-    validate_source_arg,
+    _validate_source_arg,
 )
 from sap_cloud_sdk.core.auditlog_ng.exceptions import ValidationError
 from sap_cloud_sdk.core.telemetry import Module
@@ -148,7 +148,7 @@ class AuditClient:
             raise ValidationError(f"Audit event validation failed: {e}") from e
 
         tenant_id = event.common.tenant_id
-        validate_source_arg(tenant_id, "tenant_id")
+        _validate_source_arg(tenant_id, "tenant_id")
 
         event_id = str(uuid.uuid4())
 
