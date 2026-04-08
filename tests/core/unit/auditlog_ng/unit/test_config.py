@@ -5,7 +5,7 @@ import pytest
 from sap_cloud_sdk.core.auditlog_ng.config import (
     AuditLogNGConfig,
     SCHEMA_URL,
-    validate_source_arg,
+    _validate_source_arg,
 )
 
 

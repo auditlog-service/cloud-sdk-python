@@ -5,8 +5,7 @@ import pytest
 from sap_cloud_sdk.core.auditlog_ng.exceptions import (
     AuditLogNGError,
     ClientCreationError,
-    TransportError,
-    ValidationError,
+    ValidationError
 )
 
 
