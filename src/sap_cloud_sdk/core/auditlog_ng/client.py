@@ -27,11 +27,8 @@ from sap_cloud_sdk.core.auditlog_ng.config import (
     AuditLogNGConfig,
     validate_source_arg,
 )
-from sap_cloud_sdk.core.auditlog_ng.exceptions import (
-    TransportError,
-    ValidationError,
-)
-from sap_cloud_sdk.core.telemetry import Module, Operation, record_metrics
+from sap_cloud_sdk.core.auditlog_ng.exceptions import ValidationError
+from sap_cloud_sdk.core.telemetry import Module
 
 
 class AuditClient:
