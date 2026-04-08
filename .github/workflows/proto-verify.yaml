@@ -1,0 +1,29 @@
+name: Proto generation check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  make-proto:
+    name: Run make proto
+    runs-on: ${{ contains(github.server_url, 'github.com') && 'ubuntu-latest' || fromJSON('["self-hosted"]') }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install buf
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Verify buf
+        run: buf --version
+
+      - name: Run make proto
+        run: make proto
