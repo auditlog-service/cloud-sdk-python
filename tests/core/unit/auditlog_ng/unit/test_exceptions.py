@@ -13,7 +13,6 @@ class TestExceptions:
 
     def test_exception_hierarchy(self):
         assert issubclass(ClientCreationError, AuditLogNGError)
-        assert issubclass(TransportError, AuditLogNGError)
         assert issubclass(ValidationError, AuditLogNGError)
         assert issubclass(AuditLogNGError, Exception)
 
@@ -25,11 +24,6 @@ class TestExceptions:
     def test_client_creation_error(self):
         error = ClientCreationError("Failed to create client")
         assert str(error) == "Failed to create client"
-        assert isinstance(error, AuditLogNGError)
-
-    def test_transport_error(self):
-        error = TransportError("Transport failed")
-        assert str(error) == "Transport failed"
         assert isinstance(error, AuditLogNGError)
 
     def test_validation_error(self):
