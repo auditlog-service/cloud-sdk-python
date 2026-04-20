@@ -1,10 +1,16 @@
 """Internal module for setting up OpenTelemetry meter provider."""
 
 import logging
+import os
 from typing import Optional
 
 from opentelemetry import metrics
-from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import (
+    OTLPMetricExporter as GRPCMetricExporter,
+)
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import (
+    OTLPMetricExporter as HTTPMetricExporter,
+)
 from opentelemetry.sdk.metrics import (
     MeterProvider,
     Counter,
@@ -23,6 +29,7 @@ from opentelemetry.sdk.resources import Resource
 from sap_cloud_sdk.core.telemetry.config import (
     get_config,
     create_resource_attributes_from_env,
+    ENV_OTLP_PROTOCOL,
 )
 from sap_cloud_sdk.core._version import get_version
 from sap_cloud_sdk.core.telemetry.constants import SDK_PACKAGE_NAME
@@ -69,12 +76,27 @@ def shutdown() -> None:
         _meter_provider = None
 
 
-def _setup_meter_provider() -> Optional[MeterProvider]:
-    """Set up the OpenTelemetry meter provider.
+def _create_metric_exporter():
+    protocol = os.getenv(ENV_OTLP_PROTOCOL, "grpc").lower()
+    exporter_classes = {"grpc": GRPCMetricExporter, "http/protobuf": HTTPMetricExporter}
 
-    Returns:
-        MeterProvider instance if enabled, None if disabled.
-    """
+    if protocol not in exporter_classes:
+        raise ValueError(
+            f"Unsupported OTEL_EXPORTER_OTLP_PROTOCOL: '{protocol}'. "
+            "Supported values are 'grpc' and 'http/protobuf'."
+        )
+    temporality: dict[type, AggregationTemporality] = {
+        Counter: AggregationTemporality.DELTA,
+        Histogram: AggregationTemporality.DELTA,
+        ObservableCounter: AggregationTemporality.DELTA,
+        ObservableGauge: AggregationTemporality.DELTA,
+        ObservableUpDownCounter: AggregationTemporality.DELTA,
+        UpDownCounter: AggregationTemporality.DELTA,
+    }
+    return exporter_classes[protocol](preferred_temporality=temporality)
+
+
+def _setup_meter_provider() -> Optional[MeterProvider]:
     config = get_config()
 
     if not config.enabled:
@@ -83,23 +105,8 @@ def _setup_meter_provider() -> Optional[MeterProvider]:
 
     try:
         resource = Resource.create(create_resource_attributes_from_env())
-
-        exporter = OTLPMetricExporter(
-            endpoint=config.otlp_endpoint,
-            preferred_temporality={
-                Counter: AggregationTemporality.DELTA,
-                Histogram: AggregationTemporality.DELTA,
-                ObservableCounter: AggregationTemporality.DELTA,
-                ObservableGauge: AggregationTemporality.DELTA,
-                ObservableUpDownCounter: AggregationTemporality.DELTA,
-                UpDownCounter: AggregationTemporality.DELTA,
-            },
-        )
-
-        # Create metric reader with periodic export
+        exporter = _create_metric_exporter()
         reader = PeriodicExportingMetricReader(exporter=exporter)
-
-        # Create and set meter provider
         provider = MeterProvider(resource=resource, metric_readers=[reader])
 
         metrics.set_meter_provider(provider)
