@@ -11,6 +11,7 @@ class Module(str, Enum):
     AUDITLOG_NG = "auditlog_ng"
     AGENT_MEMORY = "agent_memory"
     DESTINATION = "destination"
+    EXTENSIBILITY = "extensibility"
     OBJECTSTORE = "objectstore"
     DMS = "dms"
     AGENTGATEWAY = "agentgateway"
