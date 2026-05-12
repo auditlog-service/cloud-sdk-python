@@ -194,9 +194,7 @@ class AuditClient:
         descriptor = getattr(event, "DESCRIPTOR", None)
         descriptor_full_name = getattr(descriptor, "full_name", None)
         if not isinstance(descriptor_full_name, str) or not descriptor_full_name:
-            raise ValueError(
-                "Could not determine event type from message descriptor"
-            )
+            raise ValueError("Could not determine event type from message descriptor")
         event_type = descriptor_full_name
 
         if format == "json":
