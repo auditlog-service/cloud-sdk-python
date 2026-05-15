@@ -157,7 +157,6 @@ class AuditClient:
 
         Args:
             event: Protobuf message (audit event).
-            event_type: Event type name (defaults to message type name).
             format: Serialization format (``"protobuf-binary"`` or ``"json"``).
 
         Returns:
