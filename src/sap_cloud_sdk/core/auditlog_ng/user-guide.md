@@ -129,6 +129,15 @@ event_id = client.send(event)
 print(f"Sent event with ID: {event_id}")
 ```
 
+The event type is automatically inferred from the protobuf descriptor full name
+(e.g. `sap.auditlog.auditevent.v2.DataAccess` for a `DataAccess` message).
+
+If you want to specify the event type manually, pass the full qualified name:
+
+```python
+event_id = client.send(event, event_type="sap.auditlog.auditevent.v2.ConfigurationChange")
+```
+
 **JSON format:**
 
 ```python

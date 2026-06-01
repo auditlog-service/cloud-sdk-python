@@ -7,6 +7,7 @@ Supports mTLS (client certificates) and insecure (no-auth) modes for gRPC.
 import json
 import os
 import uuid
+import warnings
 from typing import Optional
 
 import protovalidate
@@ -98,7 +99,8 @@ class AuditClient:
             key_file="client.key",
         ))
 
-        event_id = client.send(event, "DataAccess")
+        # event_type is inferred from the protobuf descriptor automatically
+        event_id = client.send(event)
         client.close()
     """
 
@@ -151,12 +153,16 @@ class AuditClient:
     def send(
         self,
         event: Message,
+        event_type: Optional[str] = None,
         format: str = "protobuf-binary",
     ) -> str:
         """Send an audit log event.
 
         Args:
             event: Protobuf message (audit event).
+            event_type: Event type name. If not provided, inferred from the
+                protobuf descriptor full name (e.g.
+                ``"sap.auditlog.auditevent.v2.DataAccess"``).
             format: Serialization format (``"protobuf-binary"`` or ``"json"``).
 
         Returns:
@@ -193,8 +199,20 @@ class AuditClient:
         descriptor = getattr(event, "DESCRIPTOR", None)
         descriptor_full_name = getattr(descriptor, "full_name", None)
         if not isinstance(descriptor_full_name, str) or not descriptor_full_name:
-            raise ValueError("Could not determine event type from message descriptor")
-        event_type = descriptor_full_name
+            raise ValueError(
+                "Could not determine event type from message descriptor"
+            )
+
+        if event_type is None:
+            event_type = descriptor_full_name
+        elif event_type != descriptor_full_name:
+            warnings.warn(
+                f"event_type '{event_type}' does not match the protobuf descriptor "
+                f"full name '{descriptor_full_name}'. "
+                "The event may be rejected by the Audit Log Service.",
+                UserWarning,
+                stacklevel=2,
+            )
 
         if format == "json":
             mime_type = "application/json"
@@ -218,14 +236,20 @@ class AuditClient:
 
         return event_id
 
-    def send_json(self, event: Message) -> str:
+    def send_json(self, event: Message, event_type: Optional[str] = None) -> str:
         """Send event in JSON format."""
-        return self.send(event, format="json")
+        return self.send(event, event_type, format="json")
 
-    def flush(self) -> None:
-        """Flush pending events (for batch mode)."""
+    def flush(self) -> bool:
+        """Flush pending events and wait for delivery.
+
+        Returns:
+            ``True`` if the flush completed within the timeout,
+            ``False`` if it timed out.
+        """
         if not self._closed:
-            self._provider.force_flush()
+            return self._provider.force_flush()
+        return True
 
     def close(self) -> None:
         """Shutdown the client and flush pending events."""
